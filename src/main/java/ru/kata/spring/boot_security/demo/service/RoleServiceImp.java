@@ -23,11 +23,6 @@ public class RoleServiceImp implements RoleService{
     }
 
     @Override
-    public Role getRoleByName(String name) {
-        return roleRepository.findByRoleName(name);
-    }
-
-    @Override
     public Set<Role> findRolesByIds(Set<Long> roleIds) {
         return new HashSet<>(roleRepository.findAllById(roleIds));
     }
