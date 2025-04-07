@@ -34,12 +34,12 @@ public class Role implements GrantedAuthority {
         this.id = id;
     }
 
-    public String getRole_name() {
+    public String getRoleName() {
         return roleName;
     }
 
-    public void setRole_name(String role_name) {
-        this.roleName = role_name;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
     public Set<User> getUsers() {
