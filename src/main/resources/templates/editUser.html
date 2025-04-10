@@ -15,10 +15,10 @@
 <form th:action="@{/admin/edit}" method="post">
   <input type="hidden" name="id" th:value="${user.id}">
 
-  Username: <input type="text" name="username" th:value="${user.username}"><br>
   Password: <input type="password" name="newPassword" placeholder="Optional"><br>
   First Name: <input type="text" name="firstName" th:value="${user.firstName}"><br>
   Last Name: <input type="text" name="lastName" th:value="${user.lastName}"><br>
+  Username: <input type="text" name="age" th:value="${user.age}"><br>
   Email: <input type="email" name="email" th:value="${user.email}"><br>
 
   Role:

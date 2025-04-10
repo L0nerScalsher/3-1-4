@@ -58,7 +58,7 @@ public class AdminController {
     @PostMapping("/edit")
     public String editUser(
             @RequestParam Long id,
-            @RequestParam String username,
+            @RequestParam Integer age,
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam String email,
@@ -67,7 +67,7 @@ public class AdminController {
     ) {
         User userDB = userService.getUserById(id);
 
-        userDB.setUsername(username);
+        userDB.setAge(age);
         userDB.setFirstName(firstName);
         userDB.setLastName(lastName);
         userDB.setEmail(email);

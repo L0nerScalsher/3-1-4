@@ -12,10 +12,11 @@
 </head>
 <body>
 <h1>Your Profile</h1>
-<p>Username: <span th:text="${user.username}"></span></p>
+
 <p>First Name: <span th:text="${user.firstName}"></span></p>
 <p>Last Name: <span th:text="${user.lastName}"></span></p>
-<p>Email: <span th:text="${user.email}"></span></p>
+<p>Age: <span th:text="${user.age}"></span></p>
+<p>Email: <span th:text="${user.username}"></span></p>
 <p>Role:
     <span th:each="role : ${user.roles}"
           th:text="${role.roleName} + ' '">
