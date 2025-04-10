@@ -6,19 +6,22 @@
 </head>
 <body>
 <h1>Edit User</h1>
-<form th:action="@{/admin/edit}" method="post" th:object="${user}">
-  <input type="hidden" th:field="*{id}">
-  Username: <input type="text" th:field="*{username}"><br>
-  Password: <input type="password" name="password"><br>
-  First Name: <input type="text" th:field="*{firstName}"><br>
-  Last Name: <input type="text" th:field="*{lastName}"><br>
-  Email: <input type="email" th:field="*{email}"><br>
+<form th:action="@{/admin/edit}" method="post">
+  <input type="hidden" name="id" th:value="${user.id}">
+
+  Username: <input type="text" name="username" th:value="${user.username}"><br>
+  Password: <input type="password" name="newPassword" placeholder="Optional"><br>
+  First Name: <input type="text" name="firstName" th:value="${user.firstName}"><br>
+  Last Name: <input type="text" name="lastName" th:value="${user.lastName}"><br>
+  Email: <input type="email" name="email" th:value="${user.email}"><br>
+
   Role:
   <div th:each="role : ${allRoles}">
     <input type="checkbox"
            name="roleIds"
            th:value="${role.id}"
-           th:id="${'role_' + role.id}">
+           th:id="${'role_' + role.id}"
+           th:checked="${user.roles.contains(role)}">
     <label th:for="${'role_' + role.id}"
            th:text="${role.roleName}"></label>
   </div>

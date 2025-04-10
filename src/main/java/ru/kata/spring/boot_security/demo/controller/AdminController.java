@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class AdminController {
     private final RoleService roleService;
 
     @Autowired
-    public AdminController(UserService userService, RoleService roleService) {
+    public AdminController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
     }
@@ -55,10 +56,22 @@ public class AdminController {
     }
 
     @PostMapping("/edit")
-    public String editUser(@ModelAttribute User user, @RequestParam("roleIds") Set<Long> roleIds) {
-        Set<Role> roles = roleService.findRolesByIds(roleIds);
-        user.setRoles(roles);
-        userService.addUser(user);
+    public String editUser(
+            @RequestParam Long id,
+            @RequestParam String username,
+            @RequestParam String firstName,
+            @RequestParam String lastName,
+            @RequestParam String email,
+            @RequestParam(value = "roleIds", required = false) Set<Long> roleIds,
+            @RequestParam(value = "newPassword", required = false) String newPassword
+    ) {
+        User userDB = userService.getUserById(id);
+
+        userDB.setUsername(username);
+        userDB.setFirstName(firstName);
+        userDB.setLastName(lastName);
+        userDB.setEmail(email);
+        userService.editUser(userDB, newPassword, roleIds);
         return "redirect:/admin";
     }
 
