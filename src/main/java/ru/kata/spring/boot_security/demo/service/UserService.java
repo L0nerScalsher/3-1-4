@@ -17,6 +17,6 @@ public interface UserService {
 
     User getUserById(Long id);
 
-    public void editUser(User user, String rawPassword, Set<Long> roleIds);
+    void editUser(User user, String rawPassword, Set<Long> roleIds);
 }
 
