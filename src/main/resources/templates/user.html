@@ -94,7 +94,7 @@
                 <span th:text="${role.roleName.startsWith('ROLE_') ?
                               #strings.substring(role.roleName, 5) :
                               role.roleName}">ADMIN</span>
-                <span th:unless="${iterStat.last}">, </span>
+                <span th:unless="${iterStat.last}"> </span>
             </span>
         </span>
 
@@ -141,7 +141,7 @@
                                 <span th:text="${role.roleName.startsWith('ROLE_') ?
                                                 #strings.substring(role.roleName, 5) :
                                                 role.roleName}">ADMIN</span>
-                                <span th:unless="${iterStat.last}">, </span>
+                                <span th:unless="${iterStat.last}"> </span>
                             </span>
                         </td>
                     </tr>

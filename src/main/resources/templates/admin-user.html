@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Page</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: #F8F9FA;
+      overflow: hidden;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: #6c757d;
+      padding: 0;
+    }
+
+    .logout-btn:hover {
+      color: #495057;
+      text-decoration: underline;
+    }
+
+    .main-container {
+      height: calc(100vh - 56px);
+    }
+
+    .user-menu {
+      background: white;
+      height: 100%;
+    }
+
+    .user-info-section {
+      height: 100%;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .user-table {
+      border-top: 1px solid #F2F2F2;
+      margin: 15px;
+      width: 97%;
+      border-collapse: collapse;
+    }
+
+    .user-table thead tr {
+      background-color: #FFFFFF;
+      color: #202529;
+    }
+    .user-table th {
+      padding: 12px 16px;
+      text-align: left;
+    }
+
+    .user-table tbody tr {
+      background-color: #F2F2F2;
+    }
+
+
+    .user-table td {
+      padding: 12px 16px;
+      border-top: 1px solid #dee2e6;
+    }
+
+    .table-header {
+      background-color: #F2F2F2;
+      padding: 12px 16px;
+      border-bottom: 1px solid #dee2e6;
+      font-weight: 500;
+    }
+    .p-3 {
+      margin-top: 15px;
+      border-radius: 3px;
+    }
+    .navbar {
+      min-height: 60px;
+      font-size: 1.3rem;
+    }
+
+  </style>
+</head>
+
+<body>
+<nav class="navbar navbar-dark bg-dark px-4 py-2">
+  <div class="d-flex justify-content-between w-100 align-items-center">
+        <span class="text-white">
+            <strong>
+            <span th:text="${user.email}">user@mail.ru</span>
+            </strong>
+            with roles:
+            <span th:each="role,iterStat : ${user.roles}">
+                <span th:text="${role.roleName.startsWith('ROLE_') ?
+                              #strings.substring(role.roleName, 5) :
+                              role.roleName}">ADMIN</span>
+                <span th:unless="${iterStat.last}"> </span>
+            </span>
+        </span>
+
+    <form th:action="@{/logout}" method="post">
+      <button type="submit" class="logout-btn">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container-fluid main-container d-flex p-0">
+  <div class="user-menu col-md-2 flex-column p-0">
+    <a th:href="@{/admin}" class="btn btn-toolbar p-3 w-100 bg-white text-primary mt-2 mb-0">
+      Admin
+    </a>
+    <a th:href="@{/admin/user}" class="btn btn-toolbar p-3 bg-primary w-100 text-white mb-0">
+      User
+    </a>
+  </div>
+
+  <div class="user-info-section col-md-10">
+    <h2 class="mb-4">User information-page</h2>
+
+    <div class="bg-white border rounded">
+      <div class="table-header">About user</div>
+
+      <div class="p-0">
+        <table class="user-table">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Age</th>
+            <th>Email</th>
+            <th>Role</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:object="${user}">
+            <td th:text="*{id}">3</td>
+            <td th:text="*{firstName}">user</td>
+            <td th:text="*{lastName}">user</td>
+            <td th:text="*{age}">30</td>
+            <td th:text="*{email}">user@mail.ru</td>
+            <td>
+                            <span th:each="role,iterStat : ${user.roles}">
+                                <span th:text="${role.roleName.startsWith('ROLE_') ?
+                                                #strings.substring(role.roleName, 5) :
+                                                role.roleName}">ADMIN</span>
+                                <span th:unless="${iterStat.last}"> </span>
+                            </span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

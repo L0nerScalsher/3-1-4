@@ -34,12 +34,6 @@ public class AdminController {
         return "admin";
     }
 
-    @GetMapping("/add")
-    public String addUserForm(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("allRoles", roleService.getAllRoles());
-        return "addUser";
-    }
 
     @PostMapping("/add")
     public String addUser(@ModelAttribute User user, @RequestParam("roleIds") Set<Long> roleIds) {
@@ -49,12 +43,6 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @GetMapping("/edit/{id}")
-    public String editUserForm(@PathVariable Long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        model.addAttribute("allRoles", roleService.getAllRoles());
-        return "editUser";
-    }
 
     @PostMapping("/edit")
     public String editUser(
@@ -76,9 +64,16 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
+    @PostMapping("/delete")
+    public String deleteUser(@RequestParam Long id) {
         userService.deleteUser(id);
         return "redirect:/admin";
+    }
+
+    @GetMapping("/user")
+    public String userPage(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("user", user);
+        model.addAttribute("allRoles", roleService.getAllRoles());
+        return "admin-user";
     }
 }
