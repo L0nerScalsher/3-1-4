@@ -17,6 +17,14 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchRoles();
     fetchUsers();
 
+    // Обработчик выхода
+    document.getElementById("logoutForm")?.addEventListener("submit", function(e) {
+        e.preventDefault();
+        fetchWithCsrf("/logout", { method: "POST" })
+            .then(() => window.location.href = "/")
+            .catch(err => console.error("Logout error:", err));
+    });
+
     // Обработчик добавления пользователя
     document.getElementById("newUserForm").addEventListener("submit", function(e) {
         e.preventDefault();

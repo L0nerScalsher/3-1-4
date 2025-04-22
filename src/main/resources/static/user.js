@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("logoutForm")?.addEventListener("submit", function(e) {
         e.preventDefault();
         fetchWithCsrf("/logout", { method: "POST" })
-            .then(() => window.location.href = "/login")
+            .then(() => window.location.href = "/")
             .catch(err => console.error("Logout error:", err));
     });
 
