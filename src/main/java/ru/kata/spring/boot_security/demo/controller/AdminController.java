@@ -69,7 +69,6 @@ public class AdminController {
 
     @PutMapping("/users")
     public ResponseEntity<User> editUser(@RequestBody User user) {
-        // Аналогично для редактирования
         if (user.getRoles() != null) {
             Set<Role> managedRoles = new HashSet<>();
             for (Role role : user.getRoles()) {
