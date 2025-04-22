@@ -6,9 +6,8 @@ import ru.kata.spring.boot_security.demo.dao.RoleRepository;
 import ru.kata.spring.boot_security.demo.model.Role;
 
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 
 @Service
 @Transactional(readOnly = true)
@@ -26,7 +25,9 @@ public class RoleServiceImp implements RoleService{
     }
 
     @Override
-    public Set<Role> findRolesByIds(Set<Long> roleIds) {
-        return new HashSet<>(roleRepository.findAllById(roleIds));
+    public Role getRoleById(Long id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Role not found with id: " + id));
     }
+
 }

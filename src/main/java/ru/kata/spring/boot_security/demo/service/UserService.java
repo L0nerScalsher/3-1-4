@@ -5,7 +5,6 @@ package ru.kata.spring.boot_security.demo.service;
 import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.List;
-import java.util.Set;
 
 
 public interface UserService {
@@ -17,6 +16,9 @@ public interface UserService {
 
     User getUserById(Long id);
 
-    void editUser(User user, String rawPassword, Set<Long> roleIds);
+    void editUser(User user, String rawPassword);
+
+    User getUserByEmail(String email);
 }
+
 

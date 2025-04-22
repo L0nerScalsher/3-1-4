@@ -1,19 +1,26 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-@Controller
-@RequestMapping("/admin")
+
+@RestController
+@RequestMapping("/api")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final UserService userService;
@@ -25,54 +32,58 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-    @GetMapping
-    public String adminPage(@AuthenticationPrincipal User admin, Model model) {
-        model.addAttribute("admin", admin);
-        model.addAttribute("users", userService.getUsers());
-        model.addAttribute("allRoles", roleService.getAllRoles());
-        return "admin";
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> allUsers() {
+        return ResponseEntity.ok(userService.getUsers());
     }
 
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
 
-    @PostMapping("/add")
-    public String addUser(@ModelAttribute User user, @RequestParam("roleIds") Set<Long> roleIds) {
-        Set<Role> roles = roleService.findRolesByIds(roleIds);
-        user.setRoles(roles);
+    @PostMapping("/users")
+    public ResponseEntity<User> addUser(@RequestBody User user) {
+        if (user.getRoles() != null) {
+            Set<Role> managedRoles = new HashSet<>();
+            for (Role role : user.getRoles()) {
+                managedRoles.add(roleService.getRoleById(role.getId()));
+            }
+            user.setRoles(managedRoles);
+        }
         userService.addUser(user);
-        return "redirect:/admin";
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-
-    @PostMapping("/edit")
-    public String editUser(
-            @RequestParam Long id,
-            @RequestParam Integer age,
-            @RequestParam String firstName,
-            @RequestParam String lastName,
-            @RequestParam String email,
-            @RequestParam(value = "roleIds", required = false) Set<Long> roleIds,
-            @RequestParam(value = "newPassword", required = false) String newPassword
-    ) {
-        User userDB = userService.getUserById(id);
-
-        userDB.setAge(age);
-        userDB.setFirstName(firstName);
-        userDB.setLastName(lastName);
-        userDB.setEmail(email);
-        userService.editUser(userDB, newPassword, roleIds);
-        return "redirect:/admin";
-    }
-
-    @PostMapping("/delete")
-    public String deleteUser(@RequestParam Long id) {
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return "redirect:/admin";
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/user")
-    public String userPage(@AuthenticationPrincipal User user, Model model) {
-        model.addAttribute("user", user);
-        model.addAttribute("allRoles", roleService.getAllRoles());
-        return "admin-user";
+    @GetMapping("/roles")
+    public ResponseEntity<List<Role>> getAllRoles() {
+        List<Role> roles = roleService.getAllRoles();
+        return ResponseEntity.ok(roles);
+    }
+
+    @PutMapping("/users")
+    public ResponseEntity<User> editUser(@RequestBody User user) {
+        // Аналогично для редактирования
+        if (user.getRoles() != null) {
+            Set<Role> managedRoles = new HashSet<>();
+            for (Role role : user.getRoles()) {
+                managedRoles.add(roleService.getRoleById(role.getId()));
+            }
+            user.setRoles(managedRoles);
+        }
+        userService.editUser(user, user.getPassword());
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<User> getAdmin(Authentication authentication) {
+        User user = userService.getUserByEmail(authentication.getName());
+        return ResponseEntity.ok(user);
     }
 }

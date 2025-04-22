@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Admin Page</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
     <style>
@@ -36,9 +38,7 @@
             color: #495057;
             text-decoration: underline;
         }
-        .p-3 {
-            border-radius: 3px;
-        }
+
         .col-md-9{
             height: 100%;
             padding: 20px;
@@ -52,17 +52,13 @@
     <div class="d-flex justify-content-between w-100 align-items-center">
         <span class="text-white">
             <strong>
-                <span th:text="${admin.email}">user@mail.ru</span>
+                <span id="currentUserEmail"> </span>
             </strong>
             with roles:
-            <span th:each="role,iterStat : ${admin.roles}">
-                <span th:text="${role.roleName.startsWith('ROLE_') ?
-                              #strings.substring(role.roleName, 5) :
-                              role.roleName}">ADMIN</span>
-                <span th:unless="${iterStat.last}"> </span>
-            </span>
+             <span id="currentUserRoles"></span>
         </span>
-        <form th:action="@{/logout}" method="post">
+
+        <form id="logoutForm">
             <button type="submit" class="logout-btn">Logout</button>
         </form>
     </div>
@@ -70,10 +66,16 @@
 <div class="container-fluid main-container d-flex p-0 " style="height: 100vh;">
     <div class="container-fluid main-container d-flex p-0">
         <div class="user-menu col-md-2 flex-column p-0">
-            <a th:href="@{/admin}" class="btn btn-toolbar p-2 w-100 bg-primary text-white mt-2 mb-0">
+            <a class="btn btn-toolbar p-2 w-100 bg-primary text-white mt-2 mb-0"
+               id="admin-tab"
+               data-bs-toggle="tab"
+               data-bs-target="#admin-panel"
+               role="tab">
                 Admin
             </a>
-            <a th:href="@{/admin/user}" class="btn btn-toolbar p-2 bg-white w-100 text-primary mb-0">
+            <a class="btn btn-toolbar p-2 bg-white w-100 text-primary mb-0"
+               id="user-tab"
+               href="/user">
                 User
             </a>
         </div>
@@ -110,37 +112,8 @@
                                 <th>Delete</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <tr th:each="user : ${users}">
-                                <td th:text="${user.id}">ID</td>
-                                <td th:text="${user.firstName}">First Name</td>
-                                <td th:text="${user.lastName}">Last Name</td>
-                                <td th:text="${user.age}">Age</td>
-                                <td th:text="${user.email}">Email</td>
-                                <td>
-                                    <span th:each="role, iterStat : ${user.roles}">
-                                        <span th:text="${role.roleName.startsWith('ROLE_') ?
-                                                        #strings.substring(role.roleName, 5) :
-                                                        role.roleName}">Role</span>
-                                        <span th:unless="${iterStat.last}"> </span>
-                                    </span>
-                                </td>
-                                <td>
-                                    <!-- Edit-->
-                                    <button type="button" class="btn btn-primary bg-info border-0 text-white"
-                                            data-toggle="modal"
-                                            th:attr="data-target='#editModal' + ${user.id}">
-                                        Edit
-                                    </button>
-                                </td>
-                                <td>
-                                    <!-- Delete-->
-                                    <button type="button" class="btn btn-danger border-0 text-white" data-toggle="modal"
-                                            th:attr="data-target='#deleteModal' + ${user.id}">
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
+                            <tbody id="usersTableBody">
+                            <!-- JavaScript -->
                             </tbody>
                         </table>
                     </div>
@@ -151,7 +124,7 @@
                     <div class="card-header">
                         <strong> Add new user </strong>
                     </div>
-                    <form th:action="@{/admin/add}" method="post">
+                    <form id="newUserForm">
                         <div class="form-group mx-auto text-center w-50">
                             <label for="firstNameAdd"><strong>First name</strong></label>
                             <input type="text" class="form-control mx-auto w-50" id="firstNameAdd" name="firstName">
@@ -175,11 +148,6 @@
                         <div class="form-group mx-auto text-center w-50">
                             <label for="RoleAdd"><strong>Role</strong></label>
                             <select multiple class="form-control mx-auto w-50" id="RoleAdd" name="roleIds" size="2">
-                                <option th:each="role : ${allRoles}"
-                                        th:value="${role.id}"
-                                        th:text="${#strings.substringAfter(role.roleName, 'ROLE_')}">
-                                    Role
-                                </option>
                             </select>
                         </div>
                         <div class="text-center">
@@ -193,10 +161,10 @@
 </div>
 
 <!-- Edit -->
-<div class="modal fade" th:id="'editModal' + ${user.id}" tabindex="-1" role="dialog" aria-hidden="true"
-     th:each="user : ${users}">
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+
             <div class="modal-header">
                 <h5 class="modal-title">Edit user</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -205,52 +173,41 @@
             </div>
 
             <div class="modal-body">
-                <form th:action="@{/admin/edit}" method="post">
-                    <input type="hidden" name="id" th:value="${user.id}">
+                <form id="editUserForm">
+                    <input type="hidden" name="id">
                     <div class="form-group mx-auto text-center w-75">
                         <label for="idEdit"><strong>ID</strong></label>
-                        <input type="text" class="form-control mx-auto w-75" id="idEdit" name="id" readonly
-                               th:value="${user.id}">
+                        <input type="text" class="form-control mx-auto w-75" id="idEdit" name="id" readonly>
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="firstNameEdit"><strong>First name</strong></label>
-                        <input type="text" class="form-control mx-auto w-75" id="firstNameEdit" name="firstName"
-                               th:value="${user.firstName}">
+                        <input type="text" class="form-control mx-auto w-75" id="firstNameEdit" name="firstName">
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="lastNameEdit"><strong>Last name</strong></label>
-                        <input type="text" class="form-control mx-auto w-75" id="lastNameEdit" name="lastName"
-                               th:value="${user.lastName}">
+                        <input type="text" class="form-control mx-auto w-75" id="lastNameEdit" name="lastName">
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="ageEdit"><strong>Age</strong></label>
-                        <input type="number" class="form-control mx-auto w-75" id="ageEdit" name="age"
-                               th:value="${user.age}">
+                        <input type="number" class="form-control mx-auto w-75" id="ageEdit" name="age">
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="emailEdit"><strong>Email</strong></label>
-                        <input type="email" class="form-control mx-auto w-75" id="emailEdit" name="email"
-                               th:value="${user.email}">
+                        <input type="email" class="form-control mx-auto w-75" id="emailEdit" name="email">
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="passwordEdit"><strong>Password</strong></label>
                         <input type="password" class="form-control mx-auto w-75" id="passwordEdit" name="password">
                     </div>
+
                     <div class="form-group mx-auto text-center w-75">
                         <label for="RoleEdit"><strong>Role</strong></label>
                         <select multiple class="form-control mx-auto w-75" id="RoleEdit" name="roleIds" size="2">
-                            <option th:each="role : ${allRoles}"
-                                    th:value="${role.id}"
-                                    th:selected="${user.roles.contains(role)}"
-                                    th:text="${#strings.substringAfter(role.roleName, 'ROLE_')}">
-                                Role
-                            </option>
+                            <!-- JavaScript -->
                         </select>
                     </div>
                     <div class="modal-footer">
-                        <form th:action="@{/admin/edit}" method="post">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <input type="hidden" name="id" th:value="${user.id}">
+                        <form>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Edit</button>
                         </form>
@@ -262,8 +219,7 @@
 </div>
 
 <!-- Delete -->
-<div class="modal fade" th:id="'deleteModal' + ${user.id}" tabindex="-1" role="dialog" aria-hidden="true"
-     th:each="user : ${users}">
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -273,48 +229,37 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form th:action="@{/admin/delete}" method="post">
-                    <input type="hidden" name="id" th:value="${user.id}">
+                <form>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="id"><strong>ID</strong></label>
-                        <input type="text" class="form-control mx-auto w-75" id="id" name="id" readonly
-                               th:value="${user.id}">
+                        <input type="text" class="form-control mx-auto w-75" id="id" name="id" readonly>
                     </div>
+
                     <div class="form-group mx-auto text-center w-75">
                         <label for="firstName"><strong>First name</strong></label>
-                        <input type="text" class="form-control mx-auto w-75" id="firstName" name="firstName" readonly
-                               th:value="${user.firstName}">
+                        <input type="text" class="form-control mx-auto w-75" id="firstName" name="firstName" readonly>
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="lastName"><strong>Last name</strong></label>
-                        <input type="text" class="form-control mx-auto w-75" id="lastName" name="lastName" readonly
-                               th:value="${user.lastName}">
+                        <input type="text" class="form-control mx-auto w-75" id="lastName" name="lastName" readonly>
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="age"><strong>Age</strong></label>
-                        <input type="number" class="form-control mx-auto w-75" id="age" name="age" readonly
-                               th:value="${user.age}">
+                        <input type="number" class="form-control mx-auto w-75" id="age" name="age" readonly>
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="email"><strong>Email</strong></label>
-                        <input type="email" class="form-control mx-auto w-75" id="email" name="email" readonly
-                               th:value="${user.email}">
+                        <input type="email" class="form-control mx-auto w-75" id="email" name="email" readonly>
                     </div>
                     <div class="form-group mx-auto text-center w-75">
                         <label for="exampleFormControlSelect2"><strong>Role</strong></label>
                         <select multiple class="form-control mx-auto w-75" id="exampleFormControlSelect2" name="roleIds"
                                 size="2" disabled>
-                            <option th:each="role : ${user.roles}"
-                                    th:value="${role.id}"
-                                    th:text="${#strings.substringAfter(role.roleName, 'ROLE_')}">
-                                Role
-                            </option>
+                            <!-- JavaScript -->
                         </select>
                     </div>
                     <div class="modal-footer">
-                        <form th:action="@{/admin/delete}" method="post">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <input type="hidden" name="id" th:value="${user.id}">
+                        <form>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
@@ -328,5 +273,6 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+<script src="/admin.js"></script>
 </body>
 </html>

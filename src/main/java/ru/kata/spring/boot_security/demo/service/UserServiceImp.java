@@ -8,24 +8,20 @@ import ru.kata.spring.boot_security.demo.dao.UserRepository;
 import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.List;
-import java.util.Set;
-
 
 @Service
 public class UserServiceImp implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleService roleService;
 
 
     public UserServiceImp(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          RoleService roleService) {
+                          PasswordEncoder passwordEncoder) {
 
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.roleService = roleService;
+
     }
 
     @Override
@@ -55,16 +51,18 @@ public class UserServiceImp implements UserService {
 
     @Override
     @Transactional
-    public void editUser(User user, String rawPassword, Set<Long> roleIds) {
+    public void editUser(User user, String rawPassword) {
 
         if (rawPassword != null && !rawPassword.trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(rawPassword));
         }
 
-        if (roleIds != null && !roleIds.isEmpty()) {
-            user.setRoles(roleService.findRolesByIds(roleIds));
-        }
-
         userRepository.save(user);
     }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
 }
