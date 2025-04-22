@@ -52,9 +52,12 @@ public class UserServiceImp implements UserService {
     @Override
     @Transactional
     public void editUser(User user, String rawPassword) {
+        User userDB = userRepository.findById(user.getId()).orElse(null);
 
         if (rawPassword != null && !rawPassword.trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(rawPassword));
+        } else {
+            user.setPassword(userDB.getPassword());
         }
 
         userRepository.save(user);
