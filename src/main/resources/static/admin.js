@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <td>${user.age}</td>
                         <td>${user.email}</td>
                         <td>${user.roles.map(role => role.roleName.replace("ROLE_", "")).join(" ")}</td>
-                        <td><button class="btn btn-primary btn-sm edit-btn" data-id="${user.id}">Edit</button></td>
+                        <td><button class="btn btn-primary btn-sm edit-btn bg-info border-0 text-white" data-id="${user.id}">Edit</button></td>
                         <td><button class="btn btn-danger btn-sm delete-btn" data-id="${user.id}">Delete</button></td>
                     </tr>
                 `).join('');
