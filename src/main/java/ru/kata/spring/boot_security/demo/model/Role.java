@@ -24,6 +24,13 @@ public class Role implements GrantedAuthority {
     @JsonIgnore
     private Set<User> users = new HashSet<>();
 
+    public Role() {}
+
+    public Role(Long id, String roleName) {
+        this.id = id;
+        this.roleName = roleName;
+    }
+
     @Override
     public String getAuthority() {
         return roleName;
